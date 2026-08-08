@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
+@layer base {
+  :root {
+    --color-bg: #050505;
+    --color-accent: #E50914;
+  }
+
+  body {
+    background-color: #050505;
+    color: #ffffff;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom scrollbar for dark cinematic feel */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #09090b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E50914;
+}
+
+/* Swiper custom styling */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #E50914 !important;
+  background: rgba(0, 0, 0, 0.7);
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 16px !important;
+  font-weight: 900;
+}
+
+.swiper-pagination-bullet-active {
+  background: #E50914 !important;
+}
