@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Heart, Star, Bookmark, Info } from 'lucide-react';
+import { Play, Heart, Star, Bookmark, Info, Film } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { openTrailer } from '../../store/slices/uiSlice.js';
 import { useAddToWatchlistMutation } from '../../store/services/api.js';
@@ -18,7 +18,14 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, showActions = true 
   const handlePlayTrailer = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(openTrailer(movie.trailerUrl || 'https://www.youtube.com/watch?v=Way9Dexny3w'));
+    dispatch(
+      openTrailer({
+        movieId: movie.externalId,
+        movieTitle: movie.title,
+        trailerUrl: movie.trailerUrl,
+        trailerKey: movie.trailerKey,
+      })
+    );
   };
 
   const handleAddWatchlist = (e: React.MouseEvent) => {
@@ -45,35 +52,44 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, showActions = true 
         </div>
 
         {/* Dark Gradient Overlay on Hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 z-20 space-y-3">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 z-20 space-y-2">
+          {/* Watch Movie Link */}
+          <Link
+            to={`/watch/${movie.externalId}`}
+            className="w-full bg-[#E50914] text-white py-2 px-3 rounded-sm text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-red-700 transition-colors shadow-md shadow-[#E50914]/30"
+          >
+            <Film className="w-3 h-3 fill-current" />
+            <span>Watch Movie</span>
+          </Link>
+
           {/* Quick Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={handlePlayTrailer}
-              className="flex-1 bg-[#E50914] text-white py-2 px-3 rounded-sm text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 hover:bg-red-700 transition-colors shadow-md shadow-[#E50914]/30"
-              title="Play Trailer"
+              className="flex-1 bg-zinc-800 text-zinc-200 py-1.5 px-2 rounded-sm text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 hover:bg-zinc-700 hover:text-white transition-colors border border-zinc-700"
+              title="Watch Trailer"
             >
               <Play className="w-3 h-3 fill-white" />
-              <span>Play</span>
+              <span>Trailer</span>
             </button>
 
             <button
               onClick={handleAddWatchlist}
               disabled={isAdding}
-              className="w-8 h-8 rounded-sm bg-white/10 hover:bg-[#E50914] border border-white/20 text-white flex items-center justify-center transition-colors"
+              className="w-7 h-7 rounded-sm bg-zinc-800/80 hover:bg-[#E50914] border border-zinc-700 text-white flex items-center justify-center transition-colors shrink-0"
               title="Add to Watchlist"
             >
-              <Heart className="w-3.5 h-3.5 fill-current text-white" />
+              <Heart className="w-3 h-3 fill-current text-white" />
             </button>
-          </div>
 
-          <Link
-            to={`/movie/${movie.externalId}`}
-            className="w-full bg-zinc-900/90 hover:bg-white hover:text-black text-white border border-zinc-700 text-center py-1.5 rounded-sm text-[10px] font-black uppercase tracking-wider transition-colors flex items-center justify-center gap-1"
-          >
-            <Info className="w-3 h-3" />
-            <span>Details</span>
-          </Link>
+            <Link
+              to={`/movie/${movie.externalId}`}
+              className="w-7 h-7 rounded-sm bg-zinc-800/80 hover:bg-white hover:text-black border border-zinc-700 text-white flex items-center justify-center transition-colors shrink-0"
+              title="Movie Details"
+            >
+              <Info className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
       </div>
 

@@ -12,8 +12,8 @@ export const getWatchlist = async (req: AuthRequest, res: Response): Promise<voi
     let movieIds: string[] = [];
 
     try {
-      const items = await Watchlist.find({ user: userId });
-      movieIds = items.map((i) => i.movie);
+      const items = await (Watchlist as any).find({ user: userId });
+      movieIds = items.map((i: any) => i.movie);
     } catch (e) {
       movieIds = memoryWatchlists[userId] || ['693134', '872585'];
     }
@@ -53,7 +53,7 @@ export const removeFromWatchlist = async (req: AuthRequest, res: Response): Prom
     const { movieId } = req.params;
 
     try {
-      await Watchlist.deleteOne({ user: userId, movie: movieId });
+      await (Watchlist as any).deleteOne({ user: userId, movie: movieId });
     } catch (e) {
       if (memoryWatchlists[userId]) {
         memoryWatchlists[userId] = memoryWatchlists[userId].filter((id) => id !== movieId);

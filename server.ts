@@ -10,6 +10,8 @@ import { createServer as createViteServer } from 'vite';
 import { connectDB } from './server/config/db.js';
 import authRoutes from './server/routes/authRoutes.js';
 import movieRoutes from './server/routes/movieRoutes.js';
+import genreRoutes from './server/routes/genreRoutes.js';
+import historyRoutes from './server/routes/historyRoutes.js';
 import watchlistRoutes from './server/routes/watchlistRoutes.js';
 import reviewRoutes from './server/routes/reviewRoutes.js';
 import userRoutes from './server/routes/userRoutes.js';
@@ -58,6 +60,8 @@ app.get('/api/health', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
+app.use('/api/genres', genreRoutes);
+app.use('/api/history', historyRoutes);
 app.use('/api/watchlist', watchlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);

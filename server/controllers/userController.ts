@@ -8,7 +8,7 @@ export const getUserProfile = async (req: AuthRequest, res: Response): Promise<v
     let userObj: any = null;
 
     try {
-      userObj = await User.findById(userId).select('-password');
+      userObj = await (User as any).findById(userId).select('-password');
     } catch (e) {}
 
     if (!userObj) {
@@ -34,7 +34,7 @@ export const updateUserProfile = async (req: AuthRequest, res: Response): Promis
     const { name, avatar } = req.body;
 
     try {
-      const updated = await User.findByIdAndUpdate(
+      const updated = await (User as any).findByIdAndUpdate(
         userId,
         { name, avatar },
         { new: true }

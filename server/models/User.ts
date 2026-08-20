@@ -6,6 +6,7 @@ export interface IUser extends Document {
   password?: string;
   avatar?: string;
   role: 'user' | 'admin';
+  isActive: boolean;
   favorites: string[]; // movie IDs or external IDs
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +19,7 @@ const UserSchema: Schema = new Schema(
     password: { type: String, required: true },
     avatar: { type: String, default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200' },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    isActive: { type: Boolean, default: true },
     favorites: [{ type: String }],
   },
   { timestamps: true }

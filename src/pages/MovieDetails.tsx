@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Play, Bookmark, Star, Calendar, Clock, Globe, User } from 'lucide-react';
+import { Play, Bookmark, Star, Calendar, Clock, Globe, User, Film } from 'lucide-react';
 import { useGetMovieDetailsQuery, useAddToWatchlistMutation } from '../store/services/api.js';
 import { useDispatch } from 'react-redux';
 import { openTrailer } from '../store/slices/uiSlice.js';
@@ -68,10 +68,26 @@ export const MovieDetails: React.FC = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center gap-3 pt-4">
+              <Link
+                to={`/watch/${movie.externalId}`}
+                className="bg-[#E50914] text-white px-8 py-3.5 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-red-700 transition-all shadow-lg shadow-[#E50914]/25 hover:scale-105 active:scale-95"
+              >
+                <Film className="w-4 h-4 fill-current" /> Watch Movie
+              </Link>
+
               <button
-                onClick={() => dispatch(openTrailer(movie.trailerUrl || 'https://www.youtube.com/watch?v=Way9Dexny3w'))}
-                className="bg-[#E50914] text-white px-8 py-3.5 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-red-700 transition-colors shadow-lg shadow-[#E50914]/20"
+                onClick={() =>
+                  dispatch(
+                    openTrailer({
+                      movieId: movie.externalId,
+                      movieTitle: movie.title,
+                      trailerUrl: movie.trailerUrl,
+                      trailerKey: movie.trailerKey,
+                    })
+                  )
+                }
+                className="bg-zinc-800 hover:bg-zinc-700 text-white px-6 py-3.5 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2 transition-colors border border-zinc-700/60"
               >
                 <Play className="w-4 h-4 fill-white" /> Watch Trailer
               </button>

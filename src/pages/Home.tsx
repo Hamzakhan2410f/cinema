@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Star, TrendingUp, ArrowRight } from 'lucide-react';
+import { Play, Star, TrendingUp, ArrowRight, Film } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useGetTrendingMoviesQuery, useGetPopularMoviesQuery, useGetTopRatedMoviesQuery } from '../store/services/api.js';
 import { useDispatch } from 'react-redux';
@@ -11,6 +11,21 @@ export const Home: React.FC = () => {
   const dispatch = useDispatch();
   const { data: trendingData } = useGetTrendingMoviesQuery();
   const { data: popularData } = useGetPopularMoviesQuery();
+  const [historyMovies, setHistoryMovies] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const token = localStorage.getItem('cinema_token');
+    if (token) {
+      fetch('/api/history', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.data) setHistoryMovies(data.data.slice(0, 6));
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   const trendingList = (trendingData?.data && trendingData.data.length > 0) ? trendingData.data : CLIENT_FALLBACK_MOVIES;
   const popularList = (popularData?.data && popularData.data.length > 0) ? popularData.data : CLIENT_FALLBACK_MOVIES;
@@ -25,11 +40,6 @@ export const Home: React.FC = () => {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-r from-[#050505] via-[#050505]/70 to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent z-10" />
-          <img
-            src={heroMovie?.backdropPath || 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80&w=1600'}
-            alt={heroMovie?.title || 'Hero Backdrop'}
-            className="w-full h-full object-cover opacity-50 scale-105"
-          />
         </div>
 
         {/* Hero Content */}
@@ -54,9 +64,27 @@ export const Home: React.FC = () => {
           </p>
 
           <div className="flex flex-wrap items-center gap-4 pt-2">
+            {heroMovie && (
+              <Link
+                to={`/watch/${heroMovie.externalId}`}
+                className="bg-[#E50914] text-white px-8 py-4 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-red-700 transition-all shadow-xl shadow-[#E50914]/25 hover:scale-105 active:scale-95"
+              >
+                <Film className="w-4 h-4 fill-current" /> Watch Movie
+              </Link>
+            )}
+
             <button
-              onClick={() => dispatch(openTrailer(heroMovie?.trailerUrl || 'https://www.youtube.com/watch?v=Way9Dexny3w'))}
-              className="bg-[#E50914] text-white px-8 py-4 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:bg-red-700 transition-all shadow-xl shadow-[#E50914]/25 hover:scale-105 active:scale-95"
+              onClick={() =>
+                dispatch(
+                  openTrailer({
+                    movieId: heroMovie?.externalId,
+                    movieTitle: heroMovie?.title,
+                    trailerUrl: heroMovie?.trailerUrl,
+                    trailerKey: heroMovie?.trailerKey,
+                  })
+                )
+              }
+              className="bg-zinc-900/90 border border-zinc-700/80 text-white px-7 py-4 rounded-sm font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-zinc-800 transition-all hover:scale-105"
             >
               <Play className="w-4 h-4 fill-white" /> Watch Trailer
             </button>
@@ -64,9 +92,9 @@ export const Home: React.FC = () => {
             {heroMovie && (
               <Link
                 to={`/movie/${heroMovie.externalId}`}
-                className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all hover:scale-105"
+                className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-4 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all hover:scale-105"
               >
-                Movie Details
+                Details
               </Link>
             )}
           </div>
@@ -81,6 +109,37 @@ export const Home: React.FC = () => {
           <div className="w-px h-24 bg-gradient-to-b from-transparent via-[#E50914] to-transparent" />
         </div>
       </section>
+
+      {/* Continue Watching Section */}
+      {historyMovies.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
+            <div className="flex items-center gap-3">
+              <Film className="w-5 h-5 text-[#E50914]" />
+              <h2 className="text-xl font-black uppercase tracking-wider text-white">Continue Watching</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+            {historyMovies.map((item) => {
+              const m = item.movieDetails || item.movie;
+              if (!m) return null;
+              return (
+                <div key={item._id || m.externalId} className="relative group/history">
+                  <MovieCard movie={m} />
+                  {/* Progress bar */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-zinc-800 z-30 overflow-hidden rounded-b-sm">
+                    <div
+                      className="h-full bg-[#E50914]"
+                      style={{ width: `${Math.min(100, (item.progress / (item.duration || 120)) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Featured Grid Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">

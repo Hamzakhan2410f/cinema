@@ -15,6 +15,9 @@ export interface MovieItem {
   cast: { id: number; name: string; character: string; profilePath?: string }[];
   directors: string[];
   trailerUrl: string;
+  trailerKey?: string;
+  videoUrl?: string | null;
+  videoType?: 'mp4' | 'hls' | 'embed' | null;
   industry: 'Hollywood' | 'Bollywood' | 'Korean' | 'Japanese' | 'International';
   trending?: boolean;
   popular?: boolean;

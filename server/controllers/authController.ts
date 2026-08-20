@@ -15,7 +15,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     let userExists = false;
     try {
-      const existing = await User.findOne({ email });
+      const existing = await (User as any).findOne({ email });
       if (existing) userExists = true;
     } catch (e) {}
 
@@ -68,17 +68,16 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(400).json({ success: false, message: 'Please provide email and password' });
+      res.status(400).json({ success: false, message: 'Please provide username/email and password' });
       return;
     }
 
-    let user: any = null;
-    try {
-      user = await User.findOne({ email });
-    } catch (e) {}
+    const inputEmail = String(email).trim().toLowerCase();
+    const isAdminUser = inputEmail === 'admin' || inputEmail === 'admin@cinema.com';
+    const isAdminPass = password === 'admin123' || password === 'admi123';
 
-    // Admin demo account shortcut or DB check
-    if (email === 'admin@cinema.com' && password === 'admin123') {
+    // Admin shortcut login
+    if (isAdminUser && isAdminPass) {
       const token = generateToken('admin_demo_id', 'admin');
       res.json({
         success: true,
@@ -93,6 +92,13 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       });
       return;
     }
+
+    let user: any = null;
+    try {
+      user = await (User as any).findOne({
+        $or: [{ email: inputEmail }, { name: { $regex: new RegExp(`^${inputEmail}$`, 'i') } }],
+      });
+    } catch (e) {}
 
     if (!user) {
       // Allow seamless demo login for test credentials

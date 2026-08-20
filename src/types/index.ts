@@ -22,6 +22,9 @@ export interface Movie {
   cast: CastMember[];
   directors: string[];
   trailerUrl?: string;
+  trailerKey?: string;
+  videoUrl?: string | null;
+  videoType?: 'mp4' | 'hls' | 'embed' | null;
   industry: 'Hollywood' | 'Bollywood' | 'Korean' | 'Japanese' | 'International';
   trending?: boolean;
   popular?: boolean;

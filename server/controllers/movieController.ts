@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { TMDBService } from '../services/tmdbService.js';
 import { MovieService } from '../services/movieService.js';
 import { MOCK_MOVIES } from '../services/mockDataService.js';
+import { MovieVideoService } from '../services/movieVideoService.js';
+import Movie from '../models/Movie.js';
 
 export const getTrendingMovies = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -113,6 +115,29 @@ export const getMovieById = async (req: Request, res: Response): Promise<void> =
   }
 };
 
+export const getMovieVideos = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const data = await TMDBService.getMovieVideos(id);
+    res.json(data);
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getMovieFullVideo = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const videoData = await MovieVideoService.getMovieVideoAsync(id);
+    res.json({
+      success: true,
+      data: videoData,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const searchMovies = async (req: Request, res: Response): Promise<void> => {
   try {
     const query = String(req.query.q || '');
@@ -168,6 +193,21 @@ export const getRecommendedMovies = async (req: Request, res: Response): Promise
     const all = await MovieService.getAllMovies();
     const recs = all.filter((m) => m.rating >= 8.0);
     res.json({ success: true, count: recs.length, data: recs.slice(0, 8) });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const incrementMovieView = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    try {
+      await (Movie as any).findOneAndUpdate(
+        { $or: [{ externalId: id }, { _id: id }] },
+        { $inc: { views: 1 } }
+      );
+    } catch (e) {}
+    res.json({ success: true, message: 'View recorded' });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }

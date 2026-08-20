@@ -34,7 +34,7 @@ export const getMovieReviews = async (req: AuthRequest, res: Response): Promise<
     let reviews: any[] = [];
 
     try {
-      reviews = await Review.find({ movie: movieId }).sort({ createdAt: -1 }).lean();
+      reviews = await (Review as any).find({ movie: movieId }).sort({ createdAt: -1 }).lean();
     } catch (e) {
       reviews = memoryReviews.filter((r) => r.movie === movieId);
     }
@@ -66,7 +66,7 @@ export const createReview = async (req: AuthRequest, res: Response): Promise<voi
 
     let newReview: any;
     try {
-      newReview = await Review.create({
+      newReview = await (Review as any).create({
         user: user.id,
         userName: user.name,
         userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200',
@@ -102,7 +102,7 @@ export const updateReview = async (req: AuthRequest, res: Response): Promise<voi
     const { rating, comment } = req.body;
 
     try {
-      const updated = await Review.findByIdAndUpdate(reviewId, { rating, comment }, { new: true });
+      const updated = await (Review as any).findByIdAndUpdate(reviewId, { rating, comment }, { new: true });
       res.json({ success: true, data: updated });
     } catch (e) {
       const rev = memoryReviews.find((r) => r._id === reviewId);
@@ -121,7 +121,7 @@ export const deleteReview = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const { reviewId } = req.params;
     try {
-      await Review.findByIdAndDelete(reviewId);
+      await (Review as any).findByIdAndDelete(reviewId);
     } catch (e) {
       memoryReviews = memoryReviews.filter((r) => r._id !== reviewId);
     }

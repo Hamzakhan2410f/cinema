@@ -1,5 +1,7 @@
 import { Movie } from '../types/index.js';
 
+export type MovieItem = Movie;
+
 export const CLIENT_FALLBACK_MOVIES: Movie[] = [
   {
     externalId: '693134',

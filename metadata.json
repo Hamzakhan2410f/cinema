@@ -1,6 +1,6 @@
 {
-  "name": "CINEMA. Movie Discovery Platform",
-  "description": "A modern cinematic movie discovery platform with trending movies, genre filtering, watchlist, reviews, and admin management.",
+  "name": "CINEMA — Movie Discovery & Streaming Platform",
+  "description": "Full-stack movie discovery and authorized streaming platform with full movie player, trailer embeds, admin catalog management, user accounts, watchlist, and watch history.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

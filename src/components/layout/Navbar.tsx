@@ -123,9 +123,10 @@ export const Navbar: React.FC = () => {
                 <Link
                   to="/admin"
                   title="Admin Dashboard"
-                  className="w-10 h-10 rounded-sm bg-[#E50914]/10 hover:bg-[#E50914]/20 border border-[#E50914]/40 flex items-center justify-center text-[#E50914] transition-colors"
+                  className="px-3 py-2 rounded-sm bg-[#E50914] text-white flex items-center gap-1.5 text-xs font-black uppercase tracking-wider shadow-md shadow-[#E50914]/30 hover:bg-red-700 transition-colors"
                 >
                   <Shield className="w-4 h-4" />
+                  <span className="hidden sm:inline">Admin Panel</span>
                 </Link>
               )}
 
@@ -152,18 +153,25 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to="/login"
-                className="text-xs font-black uppercase tracking-widest text-zinc-300 hover:text-white px-3 py-2 transition-colors"
+                className="text-xs font-black uppercase tracking-widest text-zinc-300 hover:text-white px-2.5 py-2 transition-colors"
               >
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="bg-[#E50914] text-white px-4 py-2 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-colors shadow-md shadow-[#E50914]/20"
+                className="bg-zinc-900 text-zinc-200 border border-zinc-800 px-3 py-2 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-zinc-800 hover:text-white transition-colors hidden sm:inline-block"
               >
                 Register
+              </Link>
+              <Link
+                to="/login?admin=true"
+                className="bg-[#E50914] text-white px-3.5 py-2 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-colors shadow-md shadow-[#E50914]/30 flex items-center gap-1.5"
+              >
+                <Shield className="w-3.5 h-3.5" />
+                <span>Admin Login</span>
               </Link>
             </div>
           )}

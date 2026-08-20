@@ -6,6 +6,7 @@ import { Layout } from './components/layout/Layout.js';
 import { Home } from './pages/Home.js';
 import { Movies } from './pages/Movies.js';
 import { MovieDetails } from './pages/MovieDetails.js';
+import { WatchPage } from './pages/WatchPage.js';
 import { SearchPage } from './pages/Search.js';
 import { GenrePage } from './pages/Genre.js';
 import { CategoryPage } from './pages/CategoryPage.js';
@@ -27,6 +28,8 @@ export default function App() {
             <Route index element={<Home />} />
             <Route path="movies" element={<Movies />} />
             <Route path="movie/:id" element={<MovieDetails />} />
+            <Route path="watch/:movieId" element={<WatchPage />} />
+            <Route path="watch" element={<WatchPage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="genre/:genre" element={<GenrePage />} />
             <Route path="category/:category" element={<CategoryPage />} />
@@ -43,6 +46,13 @@ export default function App() {
             {/* Protected Admin Routes */}
             <Route element={<ProtectedRoute adminOnly />}>
               <Route path="admin" element={<AdminDashboard />} />
+              <Route path="admin/movies" element={<AdminDashboard />} />
+              <Route path="admin/movies/new" element={<AdminDashboard />} />
+              <Route path="admin/movies/:id/edit" element={<AdminDashboard />} />
+              <Route path="admin/movies/:id/video" element={<AdminDashboard />} />
+              <Route path="admin/genres" element={<AdminDashboard />} />
+              <Route path="admin/users" element={<AdminDashboard />} />
+              <Route path="admin/settings" element={<AdminDashboard />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

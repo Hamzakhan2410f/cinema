@@ -28,7 +28,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
     const decoded = jwt.verify(token, secret) as { id: string; role: string };
 
     // Attempt Mongo fetch, fallback to decoded info
-    let user = await User.findById(decoded.id).select('-password');
+    let user = await (User as any).findById(decoded.id).select('-password');
     if (user) {
       req.user = {
         id: user._id.toString(),

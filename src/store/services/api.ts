@@ -43,6 +43,28 @@ export const cinemaApi = createApi({
       query: (id) => `/movies/${id}`,
       providesTags: (result, error, id) => [{ type: 'Movie', id }],
     }),
+    getMovieTrailer: builder.query<{
+      success: boolean;
+      movieId: string;
+      trailerKey: string | null;
+      trailerUrl: string | null;
+      videos: { key: string; name: string; site: string; type: string; official: boolean }[];
+    }, string>({
+      query: (id) => `/movies/${id}/videos`,
+    }),
+    getMovieFullVideo: builder.query<{
+      success: boolean;
+      data: {
+        hasVideo: boolean;
+        movieId: string;
+        videoUrl: string | null;
+        videoType: 'mp4' | 'hls' | 'embed' | null;
+        quality?: string;
+        notes?: string;
+      };
+    }, string>({
+      query: (id) => `/movies/${id}/video`,
+    }),
     getWatchlist: builder.query<{ success: boolean; data: Movie[] }, void>({
       query: () => '/watchlist',
       providesTags: ['Watchlist'],
@@ -84,6 +106,9 @@ export const {
   useGetHollywoodMoviesQuery,
   useGetBollywoodMoviesQuery,
   useGetMovieDetailsQuery,
+  useGetMovieTrailerQuery,
+  useLazyGetMovieTrailerQuery,
+  useGetMovieFullVideoQuery,
   useGetWatchlistQuery,
   useAddToWatchlistMutation,
   useRemoveFromWatchlistMutation,
