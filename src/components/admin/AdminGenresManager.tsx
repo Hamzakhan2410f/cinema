@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FolderTree, Plus, Edit, Trash2, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { apiJsonFetch } from '../../utils/api.js';
 
 export const AdminGenresManager: React.FC = () => {
   const [genres, setGenres] = useState<any[]>([]);
@@ -17,9 +18,8 @@ export const AdminGenresManager: React.FC = () => {
   const fetchGenres = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/genres');
-      const data = await res.json();
-      if (data.data) setGenres(data.data);
+      const data = await apiJsonFetch('/genres');
+      if (data?.data) setGenres(data.data);
     } catch (e) {
       console.error('Failed to load genres', e);
     } finally {
@@ -45,42 +45,34 @@ export const AdminGenresManager: React.FC = () => {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('cinema_token');
       const method = editingGenre ? 'PUT' : 'POST';
-      const url = editingGenre ? `/api/genres/${editingGenre._id}` : '/api/genres';
+      const url = editingGenre ? `/genres/${editingGenre._id}` : '/genres';
 
-      const res = await fetch(url, {
+      const data = await apiJsonFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ name, description, image }),
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (data?.success) {
         setShowModal(false);
         fetchGenres();
       } else {
-        alert(data.message || 'Error saving genre');
+        alert(data?.message || 'Error saving genre');
       }
-    } catch (e) {
-      alert('Failed to save genre');
+    } catch (e: any) {
+      alert(e.message || 'Failed to save genre');
     }
   };
 
   const handleDelete = async (genreId: string) => {
     if (!window.confirm('Are you sure you want to delete this genre?')) return;
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/genres/${genreId}`, {
+      await apiJsonFetch(`/genres/${genreId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       setGenres((prev) => prev.filter((g) => g._id !== genreId));
-    } catch (e) {
-      alert('Failed to delete genre');
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete genre');
     }
   };
 

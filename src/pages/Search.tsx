@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Search as SearchIcon } from 'lucide-react';
 import { Movie } from '../types/index.js';
 import { MovieCard } from '../components/common/MovieCard.js';
+import { apiJsonFetch } from '../utils/api.js';
 
 export const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -13,10 +14,9 @@ export const SearchPage: React.FC = () => {
   useEffect(() => {
     if (query) {
       setLoading(true);
-      fetch(`/api/movies/search?q=${encodeURIComponent(query)}`)
-        .then((res) => res.json())
+      apiJsonFetch(`/movies/search?q=${encodeURIComponent(query)}`)
         .then((res) => {
-          if (res.data) setMovies(res.data);
+          if (res?.data) setMovies(res.data);
           setLoading(false);
         })
         .catch(() => setLoading(false));

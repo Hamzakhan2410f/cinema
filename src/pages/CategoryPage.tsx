@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Movie } from '../types/index.js';
 import { MovieCard } from '../components/common/MovieCard.js';
+import { apiJsonFetch } from '../utils/api.js';
 
 export const CategoryPage: React.FC = () => {
   const { category } = useParams<{ category: string }>();
@@ -9,12 +10,12 @@ export const CategoryPage: React.FC = () => {
 
   useEffect(() => {
     if (category) {
-      const endpoint = category.toLowerCase() === 'hollywood' ? '/api/movies/hollywood' : category.toLowerCase() === 'bollywood' ? '/api/movies/bollywood' : `/api/movies`;
-      fetch(endpoint)
-        .then((res) => res.json())
+      const endpoint = category.toLowerCase() === 'hollywood' ? '/movies/hollywood' : category.toLowerCase() === 'bollywood' ? '/movies/bollywood' : `/movies`;
+      apiJsonFetch(endpoint)
         .then((res) => {
-          if (res.data) setMovies(res.data);
-        });
+          if (res?.data) setMovies(res.data);
+        })
+        .catch((e) => console.error('Failed to load category movies', e));
     }
   }, [category]);
 

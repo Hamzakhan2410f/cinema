@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Film, Lock, Mail, Shield, AlertCircle, CheckCircle2, User as UserIcon } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../store/slices/authSlice.js';
+import { apiJsonFetch, setAuthTokens } from '../utils/api.js';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -10,11 +11,12 @@ export const Login: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const isAdminQuery = searchParams.get('admin') === 'true';
+  const isExpiredQuery = searchParams.get('expired') === 'true';
   const [isAdminMode, setIsAdminMode] = useState(isAdminQuery);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(isExpiredQuery ? 'Your session has expired. Please log in again.' : '');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -24,6 +26,16 @@ export const Login: React.FC = () => {
       setPassword('admin123');
     }
   }, [isAdminQuery]);
+
+  useEffect(() => {
+    const handleSessionExpired = (e: any) => {
+      setError(e.detail || 'Your session has expired. Please log in again.');
+    };
+    window.addEventListener('cinema:session-expired', handleSessionExpired);
+    return () => {
+      window.removeEventListener('cinema:session-expired', handleSessionExpired);
+    };
+  }, []);
 
   const handleModeSwitch = (admin: boolean) => {
     setIsAdminMode(admin);
@@ -50,20 +62,21 @@ export const Login: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const endpoint = isAdminMode ? '/auth/admin/login' : '/auth/login';
+      const data = await apiJsonFetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
-      const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Login failed');
+      if (!data.token || typeof data.token !== 'string' || data.token === 'undefined' || data.token === 'null') {
+        throw new Error('Authentication succeeded but server did not return a valid JWT token string.');
       }
 
+      // Persist token & user object cleanly in localStorage and Redux store
+      setAuthTokens(data.token, data.user);
       dispatch(setCredentials({ user: data.user, token: data.token }));
       
-      if (data.user?.role === 'admin') {
+      if (data.user?.role === 'admin' || isAdminMode) {
         navigate('/admin');
       } else {
         navigate('/');

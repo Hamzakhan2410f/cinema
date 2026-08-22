@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Film, Lock, Mail, User, AlertCircle } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../store/slices/authSlice.js';
+import { apiJsonFetch, setAuthTokens } from '../utils/api.js';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -21,17 +22,16 @@ export const Register: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const data = await apiJsonFetch('/auth/register', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role }),
       });
-      const data = await res.json();
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Registration failed');
+      if (!data.token || typeof data.token !== 'string') {
+        throw new Error('Server did not return a valid JWT token.');
       }
 
+      setAuthTokens(data.token, data.user);
       dispatch(setCredentials({ user: data.user, token: data.token }));
       navigate('/');
     } catch (err: any) {

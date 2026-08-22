@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Users, Shield, UserCheck, UserX, Trash2, Search, CheckCircle } from 'lucide-react';
+import { apiJsonFetch } from '../../utils/api.js';
 
 export const AdminUsersManager: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -13,12 +14,8 @@ export const AdminUsersManager: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('cinema_token');
-      const res = await fetch('/api/admin/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.data) setUsers(data.data);
+      const data = await apiJsonFetch('/admin/users');
+      if (data?.data) setUsers(data.data);
     } catch (e) {
       console.error('Failed to load users', e);
     } finally {
@@ -31,35 +28,28 @@ export const AdminUsersManager: React.FC = () => {
     const updatedActive = newActive !== undefined ? newActive : user.isActive !== false;
 
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/users/${user._id}`, {
+      await apiJsonFetch(`/admin/users/${user._id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ role: updatedRole, isActive: updatedActive }),
       });
 
       setUsers((prev) =>
         prev.map((u) => (u._id === user._id ? { ...u, role: updatedRole, isActive: updatedActive } : u))
       );
-    } catch (e) {
-      alert('Failed to update user');
+    } catch (e: any) {
+      alert(e.message || 'Failed to update user');
     }
   };
 
   const handleDeleteUser = async (userId: string) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return;
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/users/${userId}`, {
+      await apiJsonFetch(`/admin/users/${userId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       setUsers((prev) => prev.filter((u) => u._id !== userId));
-    } catch (e) {
-      alert('Failed to delete user');
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete user');
     }
   };
 

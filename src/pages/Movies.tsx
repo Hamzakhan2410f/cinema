@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Movie } from '../types/index.js';
 import { MovieCard } from '../components/common/MovieCard.js';
+import { apiJsonFetch } from '../utils/api.js';
 
 export const Movies: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/movies')
-      .then((res) => res.json())
+    apiJsonFetch('/movies')
       .then((res) => {
-        if (res.data) setMovies(res.data);
+        if (res?.data) setMovies(res.data);
         setLoading(false);
       })
       .catch(() => setLoading(false));

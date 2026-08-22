@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Movie } from '../types/index.js';
 import { MovieCard } from '../components/common/MovieCard.js';
+import { apiJsonFetch } from '../utils/api.js';
 
 export const GenrePage: React.FC = () => {
   const { genre } = useParams<{ genre: string }>();
@@ -9,11 +10,11 @@ export const GenrePage: React.FC = () => {
 
   useEffect(() => {
     if (genre) {
-      fetch(`/api/movies/genre/${encodeURIComponent(genre)}`)
-        .then((res) => res.json())
+      apiJsonFetch(`/movies/genre/${encodeURIComponent(genre)}`)
         .then((res) => {
-          if (res.data) setMovies(res.data);
-        });
+          if (res?.data) setMovies(res.data);
+        })
+        .catch((e) => console.error('Failed to load genre movies', e));
     }
   }, [genre]);
 

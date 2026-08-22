@@ -26,6 +26,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust reverse proxy (Cloud Run, Nginx, Vercel, Render)
+app.set('trust proxy', 1);
+
 // Connect Database
 connectDB();
 
@@ -39,19 +42,26 @@ app.use(
 app.use(cors());
 app.use(express.json());
 
-// Rate Limiting
+// Rate Limiting configured for proxies
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 500,
+  max: 1000,
   message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: {
+    trustProxy: false,
+    xForwardedForHeader: false,
+  },
 });
 
 app.use('/api', apiLimiter);
 
 // Mount API Routes
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'ok',
+app.get(['/api/health', '/health'], (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Server is running',
     app: 'CINEMA API Server',
     version: '1.0.0',
     timestamp: new Date().toISOString(),

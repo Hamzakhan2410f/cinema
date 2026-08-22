@@ -11,6 +11,7 @@ import {
   Trash2,
   AlertCircle,
 } from 'lucide-react';
+import { apiJsonFetch } from '../../utils/api.js';
 
 interface AdminMovieFormProps {
   isEdit?: boolean;
@@ -57,9 +58,8 @@ export const AdminMovieForm: React.FC<AdminMovieFormProps> = ({ isEdit = false }
 
   const fetchMovieData = async (movieId: string) => {
     try {
-      const res = await fetch(`/api/movies/${movieId}`);
-      const data = await res.json();
-      if (data.data) {
+      const data = await apiJsonFetch(`/movies/${movieId}`);
+      if (data?.data) {
         const m = data.data;
         setFormData({
           title: m.title || '',
@@ -84,8 +84,8 @@ export const AdminMovieForm: React.FC<AdminMovieFormProps> = ({ isEdit = false }
           isComingSoon: !!m.isComingSoon,
         });
       }
-    } catch (e) {
-      setError('Failed to load movie details');
+    } catch (e: any) {
+      setError(e.message || 'Failed to load movie details');
     } finally {
       setLoading(false);
     }
@@ -144,24 +144,18 @@ export const AdminMovieForm: React.FC<AdminMovieFormProps> = ({ isEdit = false }
     };
 
     try {
-      const token = localStorage.getItem('cinema_token');
-      const url = isEdit && id ? `/api/admin/movies/${id}` : '/api/admin/movies';
+      const url = isEdit && id ? `/admin/movies/${id}` : '/admin/movies';
       const method = isEdit ? 'PUT' : 'POST';
 
-      const res = await fetch(url, {
+      const data = await apiJsonFetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (data.success) {
+      if (data?.success) {
         navigate('/admin/movies');
       } else {
-        setError(data.message || 'Error saving movie');
+        setError(data?.message || 'Error saving movie');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to submit movie data');

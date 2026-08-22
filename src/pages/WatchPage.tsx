@@ -15,6 +15,7 @@ import {
 import { MoviePlayer } from '../components/player/MoviePlayer.js';
 import { MovieCard } from '../components/common/MovieCard.js';
 import { openTrailer } from '../store/slices/uiSlice.js';
+import { apiFetch } from '../utils/api.js';
 import {
   useGetMovieDetailsQuery,
   useGetMovieFullVideoQuery,
@@ -45,17 +46,13 @@ export const WatchPage: React.FC = () => {
   React.useEffect(() => {
     if (activeId) {
       // Record view count increment
-      fetch(`/api/movies/${activeId}/view`, { method: 'POST' }).catch(() => {});
+      apiFetch(`/movies/${activeId}/view`, { method: 'POST' }).catch(() => {});
 
       // Record watch history if authenticated
       const token = localStorage.getItem('cinema_token');
       if (token) {
-        fetch('/api/history', {
+        apiFetch('/history', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
           body: JSON.stringify({
             movieId: activeId,
             progress: 10,

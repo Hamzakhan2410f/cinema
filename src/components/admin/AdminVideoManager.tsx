@@ -12,6 +12,7 @@ import {
   Clock,
   FileCheck,
 } from 'lucide-react';
+import { apiJsonFetch } from '../../utils/api.js';
 
 export const AdminVideoManager: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,15 +37,13 @@ export const AdminVideoManager: React.FC = () => {
   const loadVideoInfo = async (movieId: string) => {
     setLoading(true);
     try {
-      const [movieRes, videoRes] = await Promise.all([
-        fetch(`/api/movies/${movieId}`),
-        fetch(`/api/movies/${movieId}/video`),
+      const [movieJson, videoJson] = await Promise.all([
+        apiJsonFetch(`/movies/${movieId}`),
+        apiJsonFetch(`/movies/${movieId}/video`),
       ]);
-      const movieJson = await movieRes.json();
-      const videoJson = await videoRes.json();
 
-      if (movieJson.data) setMovie(movieJson.data);
-      if (videoJson.data) {
+      if (movieJson?.data) setMovie(movieJson.data);
+      if (videoJson?.data) {
         setVideoData(videoJson.data);
         if (videoJson.data.videoUrl) setNewVideoUrl(videoJson.data.videoUrl);
       }
@@ -78,13 +77,8 @@ export const AdminVideoManager: React.FC = () => {
   const handleSaveVideo = async () => {
     if (!id) return;
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/movies/${id}`, {
+      await apiJsonFetch(`/admin/movies/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           videoUrl: newVideoUrl,
           videoType: newVideoType,
@@ -93,21 +87,16 @@ export const AdminVideoManager: React.FC = () => {
       });
       alert('Movie video updated successfully!');
       loadVideoInfo(id);
-    } catch (e) {
-      alert('Failed to update video source');
+    } catch (e: any) {
+      alert(e.message || 'Failed to update video source');
     }
   };
 
   const handleDeleteVideo = async () => {
     if (!id) return;
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/movies/${id}`, {
+      await apiJsonFetch(`/admin/movies/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           videoUrl: null,
           videoType: null,
@@ -116,8 +105,8 @@ export const AdminVideoManager: React.FC = () => {
       setNewVideoUrl('');
       setShowDeleteConfirm(false);
       loadVideoInfo(id);
-    } catch (e) {
-      alert('Failed to remove video source');
+    } catch (e: any) {
+      alert(e.message || 'Failed to remove video source');
     }
   };
 

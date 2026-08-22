@@ -10,6 +10,7 @@ import { AdminUsersManager } from '../components/admin/AdminUsersManager.js';
 import { AdminMoviePreviewModal } from '../components/admin/AdminMoviePreviewModal.js';
 import { MovieItem } from '../data/mockMovies.js';
 import { Settings, Shield, HardDrive, Lock } from 'lucide-react';
+import { apiJsonFetch } from '../utils/api.js';
 
 export const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -18,13 +19,9 @@ export const AdminDashboard: React.FC = () => {
   const [previewMovie, setPreviewMovie] = useState<MovieItem | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('cinema_token');
-    fetch('/api/admin/stats', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
+    apiJsonFetch('/admin/stats')
       .then((res) => {
-        if (res.data) setStats(res.data);
+        if (res?.data) setStats(res.data);
       })
       .catch((e) => console.error('Stats load error', e))
       .finally(() => setLoadingStats(false));

@@ -15,6 +15,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { MovieItem } from '../../data/mockMovies.js';
+import { apiJsonFetch } from '../../utils/api.js';
 
 interface AdminMoviesListProps {
   onPreviewMovie?: (movie: MovieItem) => void;
@@ -35,9 +36,8 @@ export const AdminMoviesList: React.FC<AdminMoviesListProps> = ({ onPreviewMovie
   const fetchMovies = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/movies');
-      const data = await res.json();
-      if (data.data) {
+      const data = await apiJsonFetch('/movies');
+      if (data?.data) {
         setMovies(data.data);
       }
     } catch (e) {
@@ -50,20 +50,15 @@ export const AdminMoviesList: React.FC<AdminMoviesListProps> = ({ onPreviewMovie
   const handleTogglePublish = async (movie: MovieItem) => {
     const updatedStatus = !(movie as any).isPublished;
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/movies/${movie.externalId}`, {
+      await apiJsonFetch(`/admin/movies/${movie.externalId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ isPublished: updatedStatus }),
       });
       setMovies((prev) =>
         prev.map((m) => (m.externalId === movie.externalId ? { ...m, isPublished: updatedStatus } : m))
       );
-    } catch (e) {
-      alert('Failed to update publish status');
+    } catch (e: any) {
+      alert(e.message || 'Failed to update publish status');
     }
   };
 
@@ -71,14 +66,12 @@ export const AdminMoviesList: React.FC<AdminMoviesListProps> = ({ onPreviewMovie
     if (!window.confirm(`Are you sure you want to delete "${movie.title}"?`)) return;
 
     try {
-      const token = localStorage.getItem('cinema_token');
-      await fetch(`/api/admin/movies/${movie.externalId}`, {
+      await apiJsonFetch(`/admin/movies/${movie.externalId}`, {
         method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
       });
       setMovies((prev) => prev.filter((m) => m.externalId !== movie.externalId));
-    } catch (e) {
-      alert('Failed to delete movie');
+    } catch (e: any) {
+      alert(e.message || 'Failed to delete movie');
     }
   };
 

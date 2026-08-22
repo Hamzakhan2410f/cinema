@@ -1,18 +1,42 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import { Movie, Review, User } from '../../types/index.js';
+import { getApiUrl, getAuthToken, clearAuthTokens } from '../../utils/api.js';
+
+const apiRootUrl = getApiUrl('/api');
+
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: apiRootUrl,
+  prepareHeaders: (headers) => {
+    const token = getAuthToken();
+    if (token) {
+      headers.set('authorization', `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const customBaseQuery: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+  args,
+  api,
+  extraOptions
+) => {
+  const result = await rawBaseQuery(args, api, extraOptions);
+  if (result.error && result.error.status === 401) {
+    clearAuthTokens();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('cinema:session-expired', {
+          detail: 'Your session has expired. Please log in again.',
+        })
+      );
+    }
+  }
+  return result;
+};
 
 export const cinemaApi = createApi({
   reducerPath: 'cinemaApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: '/api',
-    prepareHeaders: (headers) => {
-      const token = localStorage.getItem('cinema_token');
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+  baseQuery: customBaseQuery,
   tagTypes: ['Movie', 'Watchlist', 'Review', 'User'],
   endpoints: (builder) => ({
     getTrendingMovies: builder.query<{ success: boolean; data: Movie[] }, void>({
